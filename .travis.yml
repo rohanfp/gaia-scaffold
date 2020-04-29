@@ -1,0 +1,33 @@
+language: python
+node_js: 12.11.0
+python: 3.8
+
+cache: node_modules
+
+env:
+  global:
+  - PROJECT=fp-apac-vci-gaia-probes-rover
+
+install:
+  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
+  - npm install serverless -g
+
+before_deploy:
+  - sls plugin install -n serverless-python-requirements --accountId $ACCOUNT_ID
+
+script:
+  - echo 'script'
+  - pytest
+
+deploy:
+  - provider: script
+    script: sls deploy --verbose --stage prd --accountId $ACCOUNT_ID --region $AWS_REGION
+    skip_cleanup: "true"
+    on:
+      branch: master
+  - provider: script
+    script: sls deploy --stage dev --accountId $ACCOUNT_ID --region $AWS_REGION 
+    skip_cleanup: "true"
+    on:
+      branch: develop
